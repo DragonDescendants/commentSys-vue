@@ -67,16 +67,18 @@
       </el-main>
     </el-container>
     <!-- {{comment}} -->
-    <el-space>
-      <el-image
-        v-for="(image, index) in imageArray"
-        style="width: 150px; height: 150px"
-        :src="image"
-        :preview-src-list="imageArray"
-        :initial-index="index"
-        fit="cover"
-      ></el-image>
-    </el-space>
+    <div style="margin-top: 20px;">
+      <el-space wrap>
+        <el-image
+          v-for="(image, index) in imageArray"
+          style="width: 120px; height: 120px"
+          :src="image"
+          :preview-src-list="imageArray"
+          :initial-index="index"
+          fit="cover"
+        ></el-image>
+      </el-space>
+    </div>
   </el-card>
   <!-- {{ comment }} -->
   <!-- <el-divider></el-divider> -->
@@ -142,9 +144,11 @@ const starChecked = () => {
 const imageArray = ref([])
 const setImageArray = () => {
   if (props.comment.images) {
-    imageArray.value = props.comment.images.split(",")
-    for (let i = 0, len = imageArray.value.length; i < len; i++) {
-      imageArray.value[i] = store.url + imageArray.value[i]
+    const images = props.comment.images.split(",")
+    console.log(images)
+    // const images = props.comment.images.split(",")
+    for (let i = 0, len = images.length; i < len; i++) {
+      imageArray.value.push(store.url + images[i].trim())
     }
   }
 }

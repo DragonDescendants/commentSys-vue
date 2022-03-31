@@ -1,29 +1,25 @@
 <template>
-  <!-- <h2>这里是user的个人信息详情</h2>
-  {{ user }}-->
-  <!-- <div>..........</div> -->
+  <!-- 加载中 -->
   <div v-if="loading">资料加载中</div>
+  <!-- 加载完毕,未找到此人信息 -->
   <div v-else-if="notFound">
     <el-result title="暂无此人的信息">
       <template #icon>
         <el-avatar shape="square" :size="400" src="/notFound.jpg" />
       </template>
-      <!-- <template #extra>
-        <el-button type="primary">Back</el-button>
-      </template>-->
     </el-result>
   </div>
-
+  <!-- 加载完毕 -->
   <div v-else>
     <h2 style="text-align: center;">个人资料</h2>
     <div v-if="rt.query.id == store.userId" style="display: flex;">
+      <!-- 个人资料部分 -->
       <div style="display: flex;flex: 1;text-align: left;">
         <el-form label-position="left" label-width="100px" :model="user" style="width: 460px">
           <el-form-item label="姓名">
             <el-input v-model.trim="user.name"></el-input>
           </el-form-item>
           <el-form-item label="性别">
-            <!-- <el-input v-model.trim="user.sex"></el-input> -->
             <el-radio-group v-model="user.sex">
               <el-radio :label="0">不愿意透露</el-radio>
               <el-radio :label="1">男</el-radio>
@@ -35,13 +31,12 @@
           <el-form-item label="...">...</el-form-item>
           <el-form-item label="年龄">
             <el-input v-model.number="user.age"></el-input>
-            <!-- <el-input-number v-model="user.age" :min="1" :max="200" @change="handleChange" /> -->
-            <!-- <el-input-number v-model="user.age" :min="1" :max="200"/> -->
           </el-form-item>
           <el-button type="primary" :disabled="!isChange" @click="resetChange">重置</el-button>
           <el-button type="primary" :disabled="!isChange" @click="updateUserDetail">提交</el-button>
         </el-form>
       </div>
+      <!-- 头像上传部分 -->
       <div v-if="store.userId !== 0" style="display: flex; flex: 1;flex-direction: column;">
         <div style="text-align: center;">
           <div style="font-size: medium;">头像</div>
@@ -67,7 +62,6 @@
           >
             <span>上传</span>
           </el-button>
-          <!-- <div style="margin-top: 10px;">支持扩展名：.jpg .png .gif</div> -->
         </div>
       </div>
     </div>
@@ -81,8 +75,6 @@ import { reactive, ref, watch, inject } from 'vue'
 import { useRoute } from 'vue-router';
 import http from '../../../api/api';
 import { useStore } from '../../../store/store'
-import { Plus } from '@element-plus/icons-vue'
-import Cookies from "js-cookie";
 
 defineProps({
   msg: String
@@ -121,21 +113,11 @@ let result = ({
 const refresh = inject('refresh')
 refresh(id)
 
-
 const loading = ref(true)
 const isChange = ref(false)
 const notFound = ref(false)
 
-// 图片的url
-const imageUrl = ref('')
-// 图片上传组件的ref
-const uploadRef = ref()
-// 图片上传请求的header
-// 上传结束后的回调
-// 传输文件前的校验
-// 上传请求的函数
-// 提交上传的函数
-
+/*--------------头像上传相关-------------------*/
 // 存放file对象的数组
 const fileObjectArray = ref(null)
 const fileShowUrl = ref(null)
@@ -200,7 +182,7 @@ const uploadSubmit = () => {
     })
   }
 }
-
+/* ---------------------------------------------- */
 
 const getUserDetail = () => {
   if (id)
@@ -286,30 +268,4 @@ const updateUserDetail = () => {
   })
 }
 
-
 </script>
-
-<style>
-.avatar-uploader .el-upload {
-  border: 1px dashed #d9d9d9;
-  border-radius: 6px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-}
-.avatar-uploader .el-upload:hover {
-  border-color: #409eff;
-}
-.el-icon.avatar-uploader-icon {
-  font-size: 28px;
-  color: #8c939d;
-  width: 178px;
-  height: 178px;
-  text-align: center;
-}
-.avatar {
-  width: 178px;
-  height: 178px;
-  display: block;
-}
-</style>

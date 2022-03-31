@@ -57,6 +57,7 @@
             >{{ value[0].text }}</el-check-tag>
             <!-- 输入评论 -->
             <el-input
+                class="comment-input"
                 v-model="inputText"
                 maxlength="500"
                 placeholder="请写下您的锐评"
@@ -69,32 +70,38 @@
                 <img :src="innerUrl" />
             </el-dialog>
             <div>
-                <el-upload
-                    ref="uploadRef"
-                    class="upload-demo"
-                    action="http://localhost:8888/file/upload"
-                    :on-preview="handlePreview"
-                    :on-remove="handleRemove"
-                    :on-success="handleAvatarSuccess"
-                    :before-upload="beforeAvatarUpload"
-                    list-type="picture-card"
-                    :auto-upload="true"
-                >
-                    <el-icon>
-                        <plus />
-                    </el-icon>
-                    <template #tip>
-                        <div class="el-upload__tip">jpg/png files with a size less than 500kb</div>
-                    </template>
-                </el-upload>
+                <!-- <div style="font-size: medium;">头像</div> -->
+                <el-tooltip effect="dark" placement="left" content="评价图片支持jpg/png/gif格式,大小应在1MB以内">
+                    <div style="margin-top: 20px;">
+                        <el-avatar
+                            v-for="(src, index) in fileShowUrl.data"
+                            :src="src"
+                            :size="120"
+                            @click="removeImage(index)"
+                        />
+                        <el-avatar
+                            v-if="fileShowUrl.data.length < 9"
+                            :size="120"
+                            @click="selectImage"
+                        >晒图</el-avatar>
+                    </div>
+                </el-tooltip>
+                <input
+                    v-show="false"
+                    ref="uploadInput"
+                    type="file"
+                    class="dl-none"
+                    name="icon"
+                    @change="onBeforeImageInput"
+                    multiple
+                />
             </div>
-            <!-- ... -->
         </div>
         <!-- 点评对话框的底部 -->
         <template #footer>
             <span class="dialog-footer">
                 <el-button @click="dialogClose()">取消</el-button>
-                <el-button type="primary" @click="dialogSubmit()">提交</el-button>
+                <el-button type="primary" @click="commentSubmit()">提交</el-button>
             </span>
         </template>
         <!-- ... -->
@@ -136,17 +143,22 @@
     </el-menu>
     <!-- 评价列表 -->
     <div>
-        <div v-infinite-scroll="load" :infinite-scroll-disabled="noMore" >
+        <div v-infinite-scroll="load" :infinite-scroll-disabled="noMore">
             <div v-if="comments.data.length > 0" v-for="(comment, index) in comments.data">
                 <comment :comment="comment" :onClick="showReplys" :index="index">
-                    <span style="font-family: FangSong;font-weight: 800;">{{ skus.data.filter(sku => sku.id === comment.skuId)[0].title }}</span>
+                    <span
+                        style="font-family: FangSong;font-weight: 800;"
+                    >{{ skus.data.filter(sku => sku.id === comment.skuId)[0].title }}</span>
                 </comment>
             </div>
         </div>
         <!-- <el-divider></el-divider> -->
         <div class="flex-center">
-            <p v-if="loading">加载中...</p>
-            <p v-if="noMore">没有更多了...</p>
+            <div v-if="loading">加载中...</div>
+            <div v-else-if="!noMore">
+                <el-button type="text" @click="load()">加载更多</el-button>
+            </div>
+            <div v-if="noMore">没有更多了...</div>
         </div>
     </div>
     <!-- 评价下的讨论抽屉 -->
@@ -361,8 +373,9 @@ const dialogClose = () => {
     console.log('点击了关闭按钮')
     dialogVisible.value = false
 }
+
 /**
- * 提交点评
+ * 提交点评(旧)
  */
 const dialogSubmit = () => {
     let pathString = ''
@@ -384,22 +397,22 @@ const dialogSubmit = () => {
         })
     }
     else {
-        let labelString = []
+        let labels = []
         spuLabelTemplate.data.forEach(function (value, key) {
             if (value === true) {
-                labelString.push(key.text)
+                labels.push(key.text)
                 spuLabelTemplate.data.set(key, false)
             }
             console.log(value, key);
         });
-        console.log(labelString)
+        console.log(labels)
         http.post('/comment/sku', {
             skuId: radio.value,
             userId: store.userId,
             level: starValue.value,
             text: inputText.value,
             images: pathString,
-            labels: labelString
+            labels: labels
         }).then((response) => {
             if (response.data.code === 200) {
                 // 提交完成后
@@ -496,6 +509,7 @@ const showTagInput = () => {
     })
 }
 
+// 管理员提交标签模板
 const handleInputConfirm = () => {
     if (inputTagValue.value) {
         http.post('/admin/spu/labelTemplate', {
@@ -642,6 +656,7 @@ const handleRepliesClose = (done) => {
     done()
 }
 
+// 提交对评价的讨论
 const replyComment = () => {
     if (replyInputText.value === '') {
         ElMessage({
@@ -688,6 +703,160 @@ const replyComment = () => {
         })
     })
 }
+
+/*--------------图片上传相关-------------------*/
+// 存放file对象的数组
+// const fileObjectArray = reactive({
+//     data: []
+// })
+let fileObjectArray = []
+const fileShowUrl = reactive({
+    data: []
+})
+// 上传框的ref对象
+const uploadInput = ref();
+// 图片文件校验
+const onBeforeImageInput = (event) => {
+    const input = event.target;
+    const files = input.files;
+    if (files && files.length > 0) {
+        for (let currentFile of files) {
+            if (fileObjectArray.length >= 9) {
+                ElMessage({
+                    type: "warning",
+                    message: "图片数量太多了,最多只能附带9张图片"
+                })
+                return;
+            }
+            let isImg = currentFile.type === 'image/jpeg' || currentFile.type === 'image/png' || currentFile.type === 'image/gif'
+            let isLess1MB = currentFile.size / 1024 < 1024
+            if (isImg && isLess1MB) {
+                console.log('currentFile:', currentFile)
+                fileObjectArray.push(currentFile)
+                console.log(fileObjectArray)
+                const fileReader = new FileReader()
+                fileReader.readAsDataURL(currentFile);
+                fileReader.onload = () => {
+                    fileShowUrl.data.push(fileReader.result)
+                }
+            } else {
+                fileObjectArray.indexOf(currentFile)
+                // fileObjectArray.data = fileObjectArray.data.filter(item => item !== currentFile)
+                ElMessage({
+                    type: "warning",
+                    message: "文件参数不合法,应为jpg/png格式,且大小在1MB以内"
+                })
+                // input.files = null
+                // input.value = null
+            }
+        }
+
+    }
+}
+
+//选择图片
+const selectImage = () => {
+    // console.log(uploadInput.value)
+    let oBtn = uploadInput.value;
+    oBtn.click();
+}
+
+//移除图片
+const removeImage = (index) => {
+    ElMessageBox.confirm(
+        '确定要移除这张图片吗?',
+        '确认',
+        {
+            confirmButtonText: '不要了',
+            cancelButtonText: '再想想',
+            type: 'warning',
+        }
+    )
+        .then(() => {
+            //从图片文件数组和图片预览数组中移除索引为index的元素
+            fileObjectArray.splice(index,1)
+            fileShowUrl.data.splice(index,1)
+            ElMessage({
+                type: 'success',
+                message: '该图片已经移除',
+            })
+        })
+        .catch(() => {
+            // ElMessage({
+            //     type: 'info',
+            //     message: 'Delete canceled',
+            // })
+        })
+}
+
+// 提交点评(新)
+const commentSubmit = () => {
+    if (inputText.value === '') {
+        ElMessage({
+            message: '您还没有填写任何内容',
+            type: 'warning',
+        })
+        return;
+    }
+    if (radio.value === 0) {
+        ElMessage({
+            message: '您还没有选择您要点评的商品规格',
+            type: 'warning',
+        })
+        return;
+    }
+    if (fileObjectArray) {
+        //处理选中的标签,将它们添加进数组
+        let labels = []
+        spuLabelTemplate.data.forEach(function (value, key) {
+            if (value === true) {
+                labels.push(key.text)
+                spuLabelTemplate.data.set(key, false)
+            }
+            console.log(value, key);
+        });
+        console.log(labels)
+        console.log(fileObjectArray)
+        // 构建表单
+        let formdata = new FormData()
+        // let images = fileObjectArray.data
+        formdata.append('skuId', radio.value)
+        formdata.append('userId', store.userId)
+        formdata.append('level', starValue.value)
+        formdata.append('text', inputText.value)
+        formdata.append('labels', labels)
+        fileObjectArray.forEach(file => {
+            formdata.append('images', file)
+        })
+        http.post('/file/comment/commit', formdata, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        }).then((res) => {
+            if (res.data.code === 200) {
+                // 提交完成后
+                inputText.value = ''
+                dialogVisible.value = false
+                console.log("成功上传!")
+                fileObjectArray = []
+                fileShowUrl.data = []
+                ElMessage({
+                    type: "success",
+                    message: "评价提交成功"
+                })
+                // uploadInput.value.clearFiles()
+                reload()
+            } else {
+                ElMessage({
+                    type: "error",
+                    message: "评级提交失败,请重试"
+                })
+            }
+        })
+    }
+}
+/* ---------------------------------------------- */
+
 </script>
 
 <style>
@@ -698,5 +867,9 @@ const replyComment = () => {
 }
 .right-replies {
     background-color: whitesmoke;
+}
+.comment-input textarea {
+    resize: none;
+    height: 200px;
 }
 </style>
