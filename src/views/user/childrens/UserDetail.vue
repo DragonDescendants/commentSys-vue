@@ -160,7 +160,7 @@ const uploadSubmit = () => {
   if (fileObjectArray.value) {
     let formdata = new FormData()
     formdata.append('userId', store.userId)
-    formdata.append('file', fileObjectArray.value[0])
+    formdata.append('image', fileObjectArray.value[0])
     http.post('/file/userImg/upload', formdata, {
       headers: {
         'Content-Type': 'multipart/form-data'

@@ -1,15 +1,16 @@
 <template>
-    <div class="main-header">
-        <el-affix :offset="0">
-            <Header :logout="logout" />
-        </el-affix>
-    </div>
-    <div class="main-page">
-        <div class="main-container">
-            <router-view />
+    <div class="main">
+        <div class="main-header">
+            <el-affix :offset="0">
+                <Header :logout="logout" />
+            </el-affix>
+        </div>
+        <div class="main-page">
+            <div class="main-container">
+                <router-view />
+            </div>
         </div>
     </div>
-
     <el-backtop />
 </template>
 
