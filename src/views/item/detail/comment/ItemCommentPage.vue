@@ -194,8 +194,8 @@
         </div>
         <div v-if="selectIndex === -1 || comments.data[selectIndex].replies.length === 0">暂无人讨论</div>
         <div v-else v-for="(reply, index) in comments.data[selectIndex].replies">
-            <!-- <span>{{ reply }}</span> -->
-            <el-container style="padding-left: 0px;padding-right: 10px;">
+            <discussion :discussion="reply" isMessage></discussion>
+            <!-- <el-container style="padding-left: 0px;padding-right: 10px;">
                 <el-aside width="60px">
                     <el-avatar
                         shape="circle"
@@ -206,30 +206,20 @@
                 </el-aside>
                 <el-main style="padding-top: 0px;padding-bottom: 0px;">
                     <el-space style="margin-top: 10px;">
-                        <div style="color: red;font-size: medium;">{{ reply.userName }}</div>
+                        <div style="color: red;font-size: medium;">
+                            {{ reply.userName }}
+                            <span
+                                v-if="store.userName == reply.userName"
+                            >&nbsp;(我)&nbsp;</span>
+                        </div>
                         <div style="color: gray;font-size: small;">{{ reply.createTime }}</div>
-
-                        <!-- <span v-if="!isStar" @click="starChecked">
-                            <el-icon>
-                                <star />
-                            </el-icon>
-                            <span class="answer-footer">{{ starCount }}</span>
-                        </span>
-                        <span v-else @click="starChecked">
-                            <el-icon>
-                                <star-filled />
-                            </el-icon>
-                            <span class="answer-footer">{{ starCount }}</span>
-                        </span>-->
                     </el-space>
-
                     <div
                         style="font-size: medium;margin-top: 10px;font-weight: bold;"
                     >{{ reply.text }}</div>
                 </el-main>
             </el-container>
-            <!-- {{ comment }} -->
-            <el-divider></el-divider>
+            <el-divider></el-divider> -->
         </div>
     </el-drawer>
 </template>
@@ -241,6 +231,7 @@ import { Plus } from '@element-plus/icons-vue'
 import http from '../../../../api/api';
 import { useStore } from '../../../../store/store';
 import Comment from './Comment.vue';
+import Discussion from './Discussion.vue';
 
 const route = useRoute()
 const spuId = route.query.id;
@@ -774,8 +765,8 @@ const removeImage = (index) => {
     )
         .then(() => {
             //从图片文件数组和图片预览数组中移除索引为index的元素
-            fileObjectArray.splice(index,1)
-            fileShowUrl.data.splice(index,1)
+            fileObjectArray.splice(index, 1)
+            fileShowUrl.data.splice(index, 1)
             ElMessage({
                 type: 'success',
                 message: '该图片已经移除',

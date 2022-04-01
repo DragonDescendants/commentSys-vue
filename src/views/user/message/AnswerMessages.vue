@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2 style="text-align: center;">回复列表</h2>
+    <h2 style="text-align: center;">回复我的</h2>
     <div v-infinite-scroll="load" :infinite-scroll-disabled="noMore">
       <div v-if="replies.data.length > 0" v-for="(reply, index) in replies.data">
         <!-- {{ reply }} -->

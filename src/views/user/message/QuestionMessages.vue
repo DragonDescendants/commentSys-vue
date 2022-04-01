@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h2 style="text-align: center;">回答列表</h2>
+        <h2 style="text-align: center;">回答我的</h2>
         <div v-infinite-scroll="load" :infinite-scroll-disabled="noMore">
             <div v-if="answers.data.length > 0" v-for="(answer, index) in answers.data">
                 <el-card shadow="never" style="margin-bottom: 10px;">
