@@ -81,7 +81,7 @@
                 <el-button type="primary" style="width: 100%;margin-top: 20px;" @click="logout">退出登录</el-button>
             </div>
             <div v-else-if="store.userType === 1">
-                是商户管理员来了!
+                <div style="text-align: center;">是商户管理员来了!</div> 
                 <el-button type="primary" style="width: 100%;margin-top: 20px;" @click="logout">退出登录</el-button>
             </div>
         </div>

@@ -25,8 +25,8 @@
                     <el-button type="text" style="margin-top: 15px;" disabled>
                         <span class="header-font">神秘按钮</span>
                     </el-button>
-                    <el-button type="text" style="margin-top: 15px;" disabled>
-                        <span class="header-font">神秘按钮</span>
+                    <el-button type="text" @click="router.push('/report')" style="margin-top: 15px;">
+                        <span class="header-font">举报中心</span>
                     </el-button>
                     <!-- <router-link to="/detail">
                     <el-button type="text">

@@ -32,17 +32,22 @@
 import { ref } from 'vue'
 import { Warning } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus';
+import http from '../../api/api';
+import { useStore } from '../../store/store';
 
 const props = defineProps({
+    // 举报目标的id
     targetId: {
         type: Number,
-        default: true
+        require: true
     },
+    // 举报目标的类型(提问/回答/评价/讨论)
     targetType: {
         type: String,
         require: true
     }
 })
+const store = useStore()
 const inputText = ref('')
 const dialogVisible = ref(false)
 
@@ -52,59 +57,55 @@ const dialogClose = () => {
 }
 const dialogSubmit = () => {
     if (inputText.value.length < 15) {
-        ElMessage
+        ElMessage({
+            message: '举报理由需在15字以上',
+            type: 'warning'
+        })
+        return;
     }
     console.log('提交了对类型为' + props.targetType + ',id为' + props.targetId + '的举报')
-    // let pathString = ''
-    // if (filePathList.value.length !== 0) {
-    //     pathString = filePathList.value.join(',')
-    //     console.log(filePathList.value)
-    //     console.log(pathString)
-    // }
-    // console.log('点击了提交按钮')
-    // if (inputText.value === '') {
-    //     ElMessage({
-    //         message: '您还没有填写任何内容',
-    //         type: 'warning',
-    //     })
-    // } else if (radio.value === 0) {
-    //     ElMessage({
-    //         message: '您还没有选择您要点评的商品规格',
-    //         type: 'warning',
-    //     })
-    // }
-    // else {
-    //     http.post('/comment/sku', {
-    //         skuId: radio.value,
-    //         userId: store.userId,
-    //         level: starValue.value,
-    //         text: inputText.value,
-    //         images: pathString
-    //     }).then((response) => {
-    //         if (response.data.code === 200) {
-    //             // 提交完成后
-    //             inputText.value = ''
-    //             dialogVisible.value = false
-    //             ElMessage({
-    //                 message: '您的点评提交成功',
-    //                 type: 'success',
-    //             })
-    //             uploadRef.value.clearFiles()
-    //         } else {
-    //             ElMessage({
-    //                 message: '提交失败',
-    //                 type: 'error',
-    //             })
-    //         }
-    //     }).catch(() => {
-    //         ElMessage({
-    //             message: '提交失败',
-    //             type: 'error',
-    //         })
-    //     })
-
-    // }
-
+    if (props.targetType === 'question' ||
+        props.targetType === 'answer' ||
+        props.targetType === 'disccussion' ||
+        props.targetType === 'comment') {
+        let targetTypeNumber = 0
+        switch (props.targetType) {
+            case 'question': targetTypeNumber = 0; break;
+            case 'answer': targetTypeNumber = 1; break;
+            case 'comment': targetTypeNumber = 2; break;
+            case 'disccussion': targetTypeNumber = 3; break;
+            default: targetTypeNumber = 0
+        }
+        http.post('/report/commit', {
+            // #{report.userId}, #{report.targetId}, #{report.reason}, #{report.targetType}
+            userId: store.userId,
+            targetId: props.targetId,
+            reason: inputText.value,
+            targetType: targetTypeNumber,
+        }).then((response) => {
+            if (response.data.code === 200) {
+                // 提交完成后
+                inputText.value = ''
+                dialogVisible.value = false
+                ElMessage({
+                    message: '您的举报提交成功',
+                    type: 'success',
+                })
+                uploadRef.value.clearFiles()
+            } else {
+                ElMessage({
+                    message: '提交失败',
+                    type: 'error',
+                })
+            }
+        })
+    } else {
+        ElMessage({
+            message: '出现异常,未能成功获取举报类型',
+            type: 'error'
+        })
+        return;
+    }
 }
 
 const report = () => {

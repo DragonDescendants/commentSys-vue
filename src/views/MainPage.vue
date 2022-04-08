@@ -89,4 +89,9 @@ const setUserData = (store, user) => {
     /* background-color: whitesmoke; */
     height: calc(100vh - 100px);
 }
+.flex-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 </style>

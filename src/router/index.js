@@ -182,6 +182,23 @@ const routes = [
       },
     ],
   },
+  // {
+  //   path: "/messages",
+  //   component: () => import("../views/user/UserMessagePage.vue"),
+  //   redirect: "/messages/question",
+  //   name: "userMessages",
+  //   meta: {
+  //     requireAuth: true,
+  //   },
+  // },
+  {
+    path: "/report",
+    component: () => import("../views/report/ReportMainPage.vue"),
+    name: "reportPage",
+    meta: {
+      requireAuth: true,
+    },
+  },
   // 最后一个,其他地址重定向回主页
   {
     path: "/:catchAll(.*)", // 不识别的path自动匹配404

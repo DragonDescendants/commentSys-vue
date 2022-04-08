@@ -21,11 +21,10 @@
                     </el-main>
                 </el-container>
             </div>
-            <div>
+            <div v-if="store.userType === 0">
                 <report-button :targetId="question.id" targetType="question"></report-button>
             </div>
         </div>
-       
     </el-card>
 </template>
 
