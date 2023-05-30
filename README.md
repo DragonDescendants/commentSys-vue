@@ -20,6 +20,11 @@
     c.设置商品标签
     d....
 
+## 使用的组件
+[Element-plus](https://element-plus.org/en-US/)
+[pinia](https://pinia.vuejs.org/)
+[axios](https://axios-http.com/)
+
 ## 推荐使用的IDE和插件
 
 - [VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=johnsoncodehk.volar)
