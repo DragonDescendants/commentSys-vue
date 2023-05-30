@@ -1,7 +1,6 @@
 import {
   createRouter,
   createWebHistory,
-  createWebHashHistory,
 } from "vue-router";
 import Cookies from "js-cookie";
 import { ElMessage } from "element-plus";
