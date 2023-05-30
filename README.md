@@ -24,9 +24,10 @@
     4. ...
 
 ## 使用的组件
-[Element-plus](https://element-plus.org/en-US/)
-[pinia](https://pinia.vuejs.org/)
-[axios](https://axios-http.com/)
+
+1. [Element-plus](https://element-plus.org/en-US/)
+2. [pinia](https://pinia.vuejs.org/)
+3. [axios](https://axios-http.com/)
 
 ## 推荐使用的IDE和插件
 
