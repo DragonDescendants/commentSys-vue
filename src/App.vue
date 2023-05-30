@@ -5,15 +5,15 @@ const locale = zhCn
 </script>
 
 <template>
+  <!-- 配置本地化 -->
   <el-config-provider :locale="locale">
-    <!-- <el-scrollbar> -->
       <Main></Main>
-    <!-- </el-scrollbar> -->
   </el-config-provider>
 </template>
 
 <style>
 #app {
+  /* 配置字体 */
   font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
   'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
   height: 100%;
